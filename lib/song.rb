@@ -49,4 +49,41 @@ class Song
     song.save
   end
 
+  # when querying a DB, the database data will be returned in an 
+  # array 
+
+  # i.e. [1, "Billie Jean", "Thriller"]
+  def self.new_from_db(row)
+    self.new(id: row[0], name: row[1], album: row[2])
+  end
+
+  def self.all
+    sql = <<-SQL
+      SELECT *
+      FROM songs
+    SQL
+  
+    DB[:conn].execute(sql).map do |row|
+      self.new_from_db(row)
+    end
+  end
+
+        # here we are pulling in the data from a DB, then mapping
+      # over the returned array and placing each instance
+      # into an instance object in Ruby 
+
+  def self.find_by_name(name)
+    sql = <<-SQL
+      SELECT *
+      FROM songs
+      WHERE name = ?
+      LIMIT 1
+    SQL
+
+    DB[:conn].execute(sql, name).map do |row|
+      self.new_from_db(row)
+    end.first
+    # .first ends after the FIRST element of the array
+  end
+
 end
